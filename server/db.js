@@ -19,9 +19,9 @@ export const pool = mysql.createPool({
 export async function setupDatabase() {
   try {
     const connection = await pool.getConnection();
-    await connection.query('DROP TABLE IF EXISTS todos');
+    // await connection.query('DROP TABLE IF EXISTS todos');
     await connection.query(`
-            CREATE TABLE todos (
+            CREATE TABLE IF NOT EXISTS todos (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 text VARCHAR(255) NOT NULL,
                 completed BOOLEAN DEFAULT FALSE,
@@ -29,7 +29,7 @@ export async function setupDatabase() {
             )
         `);
     connection.release();
-    console.log("Database initialized: todos table recreated.");
+    console.log("Database initialized: connected to database");
   } catch (err) {
     console.error("Error initializing database:", err);
   }
