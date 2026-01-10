@@ -30,17 +30,17 @@ app.get("/todos", async (req, res) => {
 
 // POST new todo
 app.post("/todos", async (req, res) => {
-  console.log("POST /todos called");
-  console.log("Body:", req.body);
+  // console.log("POST /todos called");
+  // console.log("Body:", req.body);
   const { text } = req.body;
   if (!text) {
     console.log("Missing text");
     return res.status(400).json({ error: "Text is required" });
   }
   try {
-    console.log("Inserting into DB...");
+    // console.log("Inserting into DB...");
     const [result] = await pool.query("INSERT INTO todos (text) VALUES (?)", [text]);
-    console.log("Insert success:", result);
+    // console.log("Insert success:", result);
     const newTodo = { id: result.insertId, text, completed: false };
     res.status(201).json(newTodo);
   } catch (err) {
