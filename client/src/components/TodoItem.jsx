@@ -5,6 +5,7 @@ import { deleteTodo, updateTodo } from '../api'
 function TodoItem({ todo, setError}) {
     const [isTodoEditable, setIsTodoEditable] = useState(false)
     const [todoMsg, setTodoMsg] = useState(todo.text)
+    const [loading, setLoading] = useState(false)
     const [isCompleted, setIsCompleted] = useState(todo.completed)
 
     const editTodo = async () => {
@@ -12,6 +13,7 @@ function TodoItem({ todo, setError}) {
         setIsTodoEditable(false)
     }
     const toggleCompleted = async () => {
+        setLoading(true)
         try {
             await updateTodo(todo.id, { completed: !todo.completed })
             setIsCompleted(!isCompleted)
@@ -19,10 +21,12 @@ function TodoItem({ todo, setError}) {
             console.error(err)
             setError('Failed to update todo')
         }
+        setLoading(false)
     }
 
     const Delete = async () => {
         if (!window.confirm("Are you sure?")) return;
+        setLoading(true)
         try {
           await deleteTodo(todo.id)
           window.location.reload();
@@ -30,11 +34,12 @@ function TodoItem({ todo, setError}) {
           console.error(err)
           setError('Failed to delete todo')
         }
+        setLoading(false)
       }
 
     return (
         <div
-            className={`text-lg text-white flex items-center border border-black/10 rounded-lg px-5 py-3 gap-x-3 shadow-sm shadow-white/50 duration-300  ${isCompleted ? "bg-[#38e038] opacity-50" : "bg-tansparent hover:bg-white/10"
+            className={`text-lg text-white flex items-center border border-black/10 rounded-lg px-5 py-3 gap-x-3 shadow-sm text-semibold shadow-white/50 duration-300  ${isCompleted ? "bg-[#23cf13] opacity-50" : "bg-tansparent hover:bg-white/10"
                 }`}
         >
             <input
@@ -43,14 +48,19 @@ function TodoItem({ todo, setError}) {
                 checked={isCompleted}
                 onChange={toggleCompleted}
             />
-            <input
+            {loading ? (
+                <div className="flex justify-center w-full items-center gap-3">
+                    <div className="animate-spin h-5 w-1 bg-gray-100 rounded-full"></div>
+                    <span className='text-lg font-semibold'>Updating todo...</span>
+                </div>                
+            ) : (<input
                 type="text"
                 className={`truncate border outline-none w-full bg-transparent rounded-sm ${isTodoEditable ? "border-white px-2" : "border-transparent"
                     } ${isCompleted ? "line-through" : ""}`}
                 value={todoMsg}
                 onChange={(e) => setTodoMsg(e.target.value)}
                 readOnly={!isTodoEditable}
-            />
+            />)}
             {/* Edit, Save Button */}
             <button
                 className={`${isTodoEditable ? 'text-blue-500 hover:text-blue-700' : 'text-yellow-500 hover:text-yellow-700'} w-8 h-8 rounded-lg flex justify-center items-center cursor-pointer p-2 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}

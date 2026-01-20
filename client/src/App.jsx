@@ -4,6 +4,7 @@ import TodoItem from './components/TodoItem'
 
 function App() {
   const [todos, setTodos] = useState([])
+  const [loading, setLoading] = useState(false)
   const [text, setText] = useState('')
   const [error, setError] = useState('')
 
@@ -12,9 +13,11 @@ function App() {
   }, [])
 
   const loadTodos = async () => {
+    setLoading(true)
     try {
       const data = await getTodos()
       setTodos(data)
+      setLoading(false)
     } catch (err) {
       console.error(err)
       setError('Failed to load todos')
@@ -24,7 +27,7 @@ function App() {
   const handleAddTodo = async (e) => {
     e.preventDefault()
     if (!text.trim()) return
-
+    setLoading(true)
     try {
       const newTodo = await createTodo(text)
       setTodos([newTodo, ...todos])
@@ -33,6 +36,7 @@ function App() {
       console.error(err)
       setError('Failed to add todo')
     }
+    setLoading(false)
   }
 
 
@@ -66,7 +70,12 @@ function App() {
           </form>
 
           <div className="space-y-3">
-            {todos.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center w-full items-center gap-3">
+                    <div className="animate-spin h-5 w-1 bg-gray-100 rounded-full"></div>
+                    <span className='text-lg font-semibold text-white'>Loading todos...</span>
+                </div> 
+            ) : (todos.length === 0 ? (
               <p className="text-center text-gray-500 dark:text-gray-400">No todos yet. Add one properly!</p>
             ) : (
               todos.map((todo) => (
@@ -74,9 +83,10 @@ function App() {
                   key={todo.id}
                   todo={todo}
                   setError={setError}
+                  // setLoading={setLoading}
                 />
               ))
-            )}
+            ))}
           </div>
         </div>
       </div>
